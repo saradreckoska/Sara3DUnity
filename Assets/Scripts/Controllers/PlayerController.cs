@@ -30,7 +30,7 @@ public class PlayerController : MonoBehaviour {
 		if (Mouse.current.leftButton.wasPressedThisFrame)
 		{
 			// We create a ray
-			Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+			Ray ray = cam.ScreenPointToRay(Mouse.current.position.ReadValue());
 			RaycastHit hit;
 
 			// If the ray hits

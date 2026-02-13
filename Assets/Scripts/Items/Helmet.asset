@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3b28e27732abaaa429f1ce54e312e488, type: 3}
-  m_Name: Test Item
+  m_Name: Helmet
   m_EditorClassIdentifier: Assembly-CSharp::Item
-  name: Helmet of Protection
-  icon: {fileID: 0}
+  name: New Item
+  icon: {fileID: 21300000, guid: ce429d23a305a544f9fd7113720347e8, type: 3}
   isDefaultItem: 0
