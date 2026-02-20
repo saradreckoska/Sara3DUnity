@@ -15,13 +15,45 @@ public class EnemyController : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		target = PlayerManager.instance.player.transform;
+		if (PlayerManager.instance == null || PlayerManager.instance.player == null)
+		{
+			Debug.LogError("EnemyController: PlayerManager or player not found. Make sure PlayerManager exists and has a player assigned.");
+		}
+		else
+		{
+			target = PlayerManager.instance.player.transform;
+		}
+
 		agent = GetComponent<NavMeshAgent>();
+		if (agent == null)
+			Debug.LogError("EnemyController: NavMeshAgent component missing on " + gameObject.name);
+
 		combat = GetComponent<CharacterCombat>();
+		if (combat == null)
+			Debug.LogWarning("EnemyController: CharacterCombat component missing on " + gameObject.name + " (enemy won't be able to attack)");
 	}
 	
 	// Update is called once per frame
 	void Update () {
+		// Ensure we have a valid target and agent
+		if (target == null)
+		{
+			if (PlayerManager.instance != null && PlayerManager.instance.player != null)
+				target = PlayerManager.instance.player.transform;
+			else
+			{
+				// Player not ready yet; skip this frame
+				return;
+			}
+		}
+
+		if (agent == null)
+		{
+			agent = GetComponent<NavMeshAgent>();
+			if (agent == null)
+				return; // can't navigate without agent
+		}
+
 		// Distance to the target
 		float distance = Vector3.Distance(target.position, transform.position);
 

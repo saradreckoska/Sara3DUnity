@@ -14,12 +14,27 @@ public class EquipmentManager : MonoBehaviour {
 
 	public static EquipmentManager instance;
 	public SkinnedMeshRenderer targetMesh;
+	public Transform fallbackAttachRoot; // used when player has no SkinnedMeshRenderer
 
-    SkinnedMeshRenderer[] currentMeshes;
+	GameObject[] currentMeshes;
 
 	void Awake ()
 	{
 		instance = this;
+	}
+
+	void StartDiagnostics()
+	{
+		if (defaultEquipment != null && defaultEquipment.Length > 0)
+		{
+			foreach (Equipment e in defaultEquipment)
+			{
+				if (e == null) continue;
+				Debug.Log("Default equipment slot: " + e.name + " slot=" + e.equipSlot + " hasMesh=" + (e.mesh!=null) + " hasModel=" + (e.model!=null));
+			}
+		}
+
+		Debug.Log("EquipmentManager targetMesh assigned=" + (targetMesh != null));
 	}
 
 	#endregion
@@ -40,9 +55,44 @@ public class EquipmentManager : MonoBehaviour {
 		// Initialize currentEquipment based on number of equipment slots
 		int numSlots = System.Enum.GetNames(typeof(EquipmentSlot)).Length;
 		currentEquipment = new Equipment[numSlots];
-        currentMeshes = new SkinnedMeshRenderer[numSlots];
+		currentMeshes = new GameObject[numSlots];
 
-        EquipDefaults();
+
+		// Ensure targetMesh is assigned; try to auto-find on the player if not set
+		if (targetMesh == null)
+		{
+			if (PlayerManager.instance != null && PlayerManager.instance.player != null)
+			{
+				targetMesh = PlayerManager.instance.player.GetComponentInChildren<SkinnedMeshRenderer>();
+				if (targetMesh != null)
+				{
+					Debug.Log("EquipmentManager: auto-found targetMesh (SkinnedMeshRenderer) = true");
+				}
+				else
+				{
+					// fallback to attaching to the player root if no skinned mesh exists
+					fallbackAttachRoot = PlayerManager.instance.player.transform;
+					Debug.Log("EquipmentManager: no SkinnedMeshRenderer found on player; using fallback attach root " + fallbackAttachRoot.name);
+				}
+			}
+			else
+			{
+				Debug.LogWarning("EquipmentManager: targetMesh not assigned and PlayerManager/player not available to auto-find.");
+			}
+		}
+
+		StartDiagnostics();
+
+		if (targetMesh != null)
+			EquipDefaults();
+		else
+			Debug.LogError("EquipmentManager: targetMesh still null - skipping EquipDefaults to avoid errors. Assign Target Mesh in the Inspector.");
+	}
+
+	void AwakeChecks()
+	{
+		if (targetMesh == null)
+			Debug.LogError("EquipmentManager: targetMesh is not assigned!");
 	}
 
 	// Equip a new item
@@ -76,11 +126,11 @@ public class EquipmentManager : MonoBehaviour {
 			inventory.Add(oldItem);
 
             SetBlendShapeWeight(oldItem, 0);
-            // Destroy the mesh
-            if (currentMeshes[slotIndex] != null)
-            {
-                Destroy(currentMeshes[slotIndex].gameObject);
-            }
+			// Destroy the instantiated object (skinned or static)
+			if (currentMeshes[slotIndex] != null)
+			{
+				Destroy(currentMeshes[slotIndex]);
+			}
 
 			// Remove the item from the equipment array
 			currentEquipment[slotIndex] = null;
@@ -105,30 +155,90 @@ public class EquipmentManager : MonoBehaviour {
         EquipDefaults();
 	}
 
-    void AttachToMesh(Equipment item, int slotIndex)
+	void AttachToMesh(Equipment item, int slotIndex)
 	{
+		if (item == null)
+		{
+			Debug.LogWarning("AttachToMesh called with null item for slot " + slotIndex);
+			return;
+		}
 
-        SkinnedMeshRenderer newMesh = Instantiate(item.mesh) as SkinnedMeshRenderer;
-        newMesh.transform.parent = targetMesh.transform.parent;
+		// If we don't have a SkinnedMeshRenderer, we'll use the fallback attach root if present
+		if (targetMesh == null && fallbackAttachRoot == null)
+		{
+			Debug.LogError("Cannot attach item " + item.name + " because no targetMesh or fallback attach root is available");
+			return;
+		}
 
-        newMesh.rootBone = targetMesh.rootBone;
-		newMesh.bones = targetMesh.bones;
-		
-		currentMeshes[slotIndex] = newMesh;
+		Debug.Log("Attaching item '" + item.name + "' to slot " + item.equipSlot);
+		// Prefer skinned mesh if available
+		if (item.mesh != null && targetMesh != null)
+		{
+			// preferred skinned workflow
+			SkinnedMeshRenderer newMesh = Instantiate(item.mesh) as SkinnedMeshRenderer;
+			newMesh.transform.parent = targetMesh.transform.parent;
 
+			newMesh.rootBone = targetMesh.rootBone;
+			newMesh.bones = targetMesh.bones;
 
-        SetBlendShapeWeight(item, 100);
-       
+			currentMeshes[slotIndex] = newMesh.gameObject;
+
+			SetBlendShapeWeight(item, 100);
+		}
+		else if (item.mesh != null && fallbackAttachRoot != null)
+		{
+			// player has no skinned mesh; instantiate the mesh's gameobject and parent to fallback root
+			GameObject newObj = Instantiate(item.mesh.gameObject) as GameObject;
+			newObj.transform.parent = fallbackAttachRoot;
+			newObj.transform.localPosition = Vector3.zero;
+			newObj.transform.localRotation = Quaternion.identity;
+			newObj.transform.localScale = Vector3.one;
+			currentMeshes[slotIndex] = newObj;
+		}
+		// Fallback to a static GameObject model (useful for shields, weapons, etc.)
+		else if (item.model != null)
+		{
+			GameObject newObj = Instantiate(item.model) as GameObject;
+
+			// Try to find an attach point matching the equip slot name (e.g., "Shield")
+			Transform attachPoint = targetMesh.transform.Find(item.equipSlot.ToString());
+			if (attachPoint == null)
+				attachPoint = targetMesh.transform.Find("Shield");
+			if (attachPoint == null)
+				attachPoint = targetMesh.transform.Find("Shield_R");
+			if (attachPoint == null)
+				attachPoint = targetMesh.transform; // fallback
+
+			newObj.transform.parent = attachPoint;
+			newObj.transform.localPosition = Vector3.zero;
+			newObj.transform.localRotation = Quaternion.identity;
+			newObj.transform.localScale = Vector3.one;
+
+			// Ensure visibility and layer
+			newObj.SetActive(true);
+			newObj.layer = targetMesh.gameObject.layer;
+
+			currentMeshes[slotIndex] = newObj;
+
+			Debug.Log("Instantiated static model for " + item.name + " under " + attachPoint.name);
+		}
+		else
+		{
+			Debug.LogWarning("Item '" + item.name + "' has no mesh or model assigned.");
+		}
 	}
 
-    void SetBlendShapeWeight(Equipment item, int weight)
-    {
+	void SetBlendShapeWeight(Equipment item, int weight)
+	{
+		if (item == null || item.coveredMeshRegions == null)
+			return;
+
 		foreach (MeshBlendShape blendshape in item.coveredMeshRegions)
 		{
 			int shapeIndex = (int)blendshape;
-            targetMesh.SetBlendShapeWeight(shapeIndex, weight);
+			targetMesh.SetBlendShapeWeight(shapeIndex, weight);
 		}
-    }
+	}
 
     void EquipDefaults()
     {

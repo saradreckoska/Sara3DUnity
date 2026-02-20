@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Shield
   m_EditorClassIdentifier: Assembly-CSharp::Item
   name: Placeholder Shield
-  icon: {fileID: 21300000, guid: b8e10b6d56ecba74cbfb5b137f202829, type: 3}
+  icon: {fileID: 21300000, guid: 01971099dc4bb6b43b9431c4c81a7d3d, type: 3}
   isDefaultItem: 0

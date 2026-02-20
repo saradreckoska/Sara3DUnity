@@ -14,6 +14,7 @@ public class Equipment : Item {
 	public int armorModifier;		// Increase/decrease in armor
 	public int damageModifier;      // Increase/decrease in damage
     public SkinnedMeshRenderer mesh;
+	public GameObject model; // For items like shields that are static prefabs
     public EquipmentManager.MeshBlendShape[] coveredMeshRegions;
 
 	// When pressed in inventory

@@ -16,11 +16,22 @@ public class ItemPickup : Interactable {
 	void PickUp ()
 	{
 		Debug.Log("Picking up " + item.name);
-		bool wasPickedUp = Inventory.instance.Add(item);	// Add to inventory
+		bool wasPickedUp = Inventory.instance.Add(item); 	// Add to inventory
 
 		// If successfully picked up
 		if (wasPickedUp)
-			Destroy(gameObject);	// Destroy item from scene
+		{
+			// If the item is equipment, auto-equip it and remove from inventory
+			Equipment equip = item as Equipment;
+			if (equip != null && EquipmentManager.instance != null)
+			{
+				Debug.Log("Auto-equipping " + equip.name + " on pickup");
+				EquipmentManager.instance.Equip(equip);
+				Inventory.instance.Remove(equip);
+			}
+
+			Destroy(gameObject); 	// Destroy item from scene
+		}
 	}
 
 }
