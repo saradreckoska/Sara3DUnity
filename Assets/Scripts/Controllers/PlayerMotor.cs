@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-/* This component moves our player using a NavMeshAgent. */
+
 
 [RequireComponent(typeof(NavMeshAgent))]
 public class PlayerMotor : MonoBehaviour {
 
-	Transform target;		// Target to follow
-	NavMeshAgent agent;		// Reference to our agent
-
+	Transform target;		
+	NavMeshAgent agent;		
 	// Get references
 	void Start () {
 		agent = GetComponent<NavMeshAgent>();
@@ -18,10 +17,10 @@ public class PlayerMotor : MonoBehaviour {
 
 	void Update ()
 	{
-		// If we have a target
+		
 		if (target != null)
 		{
-			// Move towards it and look at it
+			
 			agent.SetDestination(target.position);
 			FaceTarget();
 		}
@@ -32,7 +31,7 @@ public class PlayerMotor : MonoBehaviour {
 		agent.SetDestination(point);
 	}
 
-	// Start following a target
+	
 	public void FollowTarget (Interactable newTarget)
 	{
 		agent.stoppingDistance = newTarget.radius * .8f;
@@ -41,7 +40,7 @@ public class PlayerMotor : MonoBehaviour {
 		target = newTarget.interactionTransform;
 	}
 
-	// Stop following a target
+	
 	public void StopFollowingTarget ()
 	{
 		agent.stoppingDistance = 0f;
@@ -50,7 +49,7 @@ public class PlayerMotor : MonoBehaviour {
 		target = null;
 	}
 
-	// Make sure to look at the target
+	
 	void FaceTarget ()
 	{
 		Vector3 direction = (target.position - transform.position).normalized;

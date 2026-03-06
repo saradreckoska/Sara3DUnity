@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-/* Handles interaction with the Enemy */
+
 
 [RequireComponent(typeof(CharacterStats))]
 public class Enemy : Interactable {

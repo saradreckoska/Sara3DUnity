@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-/* Keeps track of the player */
+
 
 [DefaultExecutionOrder(-100)]
 public class PlayerManager : MonoBehaviour {
@@ -16,7 +16,7 @@ public class PlayerManager : MonoBehaviour {
 	{
 		instance = this;
 
-		// Auto-find player by tag if not assigned in Inspector
+		
 		if (player == null)
 		{
 			player = GameObject.FindWithTag("Player");

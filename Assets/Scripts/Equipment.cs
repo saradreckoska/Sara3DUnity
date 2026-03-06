@@ -2,27 +2,28 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-/* An Item that can be equipped. */
+
 
 [CreateAssetMenu(fileName = "New Equipment", menuName = "Inventory/Equipment")]
 public class Equipment : Item {
 
 
 
-	public EquipmentSlot equipSlot;	// Slot to store equipment in
+	public EquipmentSlot equipSlot;	
 
-	public int armorModifier;		// Increase/decrease in armor
-	public int damageModifier;      // Increase/decrease in damage
+	public int armorModifier;		
+	public int damageModifier;      
     public SkinnedMeshRenderer mesh;
-	public GameObject model; // For items like shields that are static prefabs
+	public GameObject model; 
     public EquipmentManager.MeshBlendShape[] coveredMeshRegions;
 
-	// When pressed in inventory
-	public override void Use()
+		public override void Use()
 	{
 		base.Use();
-		EquipmentManager.instance.Equip(this);	// Equip it
-		RemoveFromInventory();					// Remove it from inventory
+		if (EquipmentManager.instance != null) {
+			EquipmentManager.instance.Equip(this);	
+		}
+		RemoveFromInventory();					
 	}
 
 }

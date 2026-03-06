@@ -9,12 +9,18 @@ public class PlayerAnimator : CharacterAnimator {
 	WeaponAnimation currentWeaponAnimation;
 
 	void Awake() {
-		EquipmentManager.instance.onEquipmentChanged += OnEquipmentChanged;
-		currentWeaponAnimation = weaponAnimations [0];
+		if (weaponAnimations != null && weaponAnimations.Length > 0) {
+			currentWeaponAnimation = weaponAnimations[0];
+		} else {
+			Debug.LogWarning("PlayerAnimator: No weapon animations assigned. Please assign weapon animations in the Inspector.");
+		}
 	}
 
 	protected override void Start() {
 		base.Start ();
+		if (EquipmentManager.instance != null) {
+			EquipmentManager.instance.onEquipmentChanged += OnEquipmentChanged;
+		}
 	}
 		
 
@@ -32,10 +38,10 @@ public class PlayerAnimator : CharacterAnimator {
 		
 		if (oldItem != null) {
 			if (oldItem.equipSlot == EquipmentSlot.Weapon) {
-				animator.SetLayerWeight (1, 0); // right hand grip full weight
+				animator.SetLayerWeight (1, 0); 
 			}
 			if (oldItem.equipSlot == EquipmentSlot.Shield) {
-				animator.SetLayerWeight (2, 0); // left hand grip full weight
+				animator.SetLayerWeight (2, 0); 
 			}
 		}
 
@@ -47,10 +53,10 @@ public class PlayerAnimator : CharacterAnimator {
 					currentWeaponAnimation = newC;
 
 				}
-				animator.SetLayerWeight (1, 1); // right hand grip full weight
+				animator.SetLayerWeight (1, 1); 
 			}
 			if (newItem.equipSlot == EquipmentSlot.Shield) {
-				animator.SetLayerWeight (2, 1); // left hand grip full weight
+				animator.SetLayerWeight (2, 1); 
 			}
 		}
 

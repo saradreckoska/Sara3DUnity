@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-/* This object updates the inventory UI. */
 
 public class InventoryUI : MonoBehaviour
 {
@@ -16,13 +15,13 @@ public class InventoryUI : MonoBehaviour
     {
         inventory = Inventory.instance;
         inventory.onItemChangedCallback += UpdateUI;
-        // Populate our slots array
+        
         slots = itemsParent.GetComponentsInChildren<InventorySlot>();
     }
 
     void Update()
     {
-        // Check to see if we should open/close the inventory
+
         if (Keyboard.current.iKey.wasPressedThisFrame)
         {
             inventoryUI.SetActive(!inventoryUI.activeSelf);
@@ -31,7 +30,7 @@ public class InventoryUI : MonoBehaviour
 
     void UpdateUI()
     {
-        // Loop through all the slots
+       
         for (int i = 0; i < slots.Length; i++)
         {
             if (i < inventory.items.Count)
@@ -40,7 +39,7 @@ public class InventoryUI : MonoBehaviour
             }
             else
             {
-                // Otherwise clear the slot
+                
                 slots[i].ClearSlot();
             }
         }
