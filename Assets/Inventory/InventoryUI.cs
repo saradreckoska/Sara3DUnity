@@ -14,17 +14,60 @@ public class InventoryUI : MonoBehaviour
     void Start()
     {
         inventory = Inventory.instance;
-        inventory.onItemChangedCallback += UpdateUI;
+        if (inventory != null)
+            inventory.onItemChangedCallback += UpdateUI;
+
+       
+        if (inventoryUI == null)
+        {
+            inventoryUI = GameObject.Find("Inventory") ?? GameObject.Find("InventoryUI");
+            if (inventoryUI != null)
+                Debug.Log("InventoryUI: auto-found inventory UI GameObject: " + inventoryUI.name);
+        }
+
         
-        slots = itemsParent.GetComponentsInChildren<InventorySlot>();
+        if (inventoryUI != null)
+        {
+            RectTransform rt = inventoryUI.GetComponent<RectTransform>();
+            if (rt != null)
+            {
+                rt.localScale = Vector3.one;
+                
+                rt.anchorMin = new Vector2(1, 1);
+                rt.anchorMax = new Vector2(1, 1);
+                rt.anchoredPosition = new Vector2(-10, -10);
+                rt.pivot = new Vector2(1, 1); t
+            }
+        }
+
+        if (itemsParent == null && inventoryUI != null)
+        {
+            
+            Transform found = inventoryUI.transform.Find("ItemsParent");
+            if (found != null)
+                itemsParent = found;
+        }
+
+        if (itemsParent != null)
+        {
+            itemsParent.localScale = Vector3.one;
+            slots = itemsParent.GetComponentsInChildren<InventorySlot>();
+        }
+        else
+        {
+            Debug.LogWarning("InventoryUI: itemsParent is not assigned and could not be auto-found.");
+        }
     }
 
     void Update()
     {
+        if (inventoryUI == null)
+            return;
 
         if (Keyboard.current.iKey.wasPressedThisFrame)
         {
             inventoryUI.SetActive(!inventoryUI.activeSelf);
+            Debug.Log("Inventory UI toggled to: " + inventoryUI.activeSelf);
         }
     }
 
@@ -45,3 +88,4 @@ public class InventoryUI : MonoBehaviour
         }
     }
 }
+                

@@ -13,6 +13,10 @@ public class PlayerMotor : MonoBehaviour {
 	// Get references
 	void Start () {
 		agent = GetComponent<NavMeshAgent>();
+		if (agent == null) Debug.LogError("PlayerMotor: NavMeshAgent component missing!");
+		else {
+			Debug.Log("PlayerMotor: NavMeshAgent found, speed: " + agent.speed + ", enabled: " + agent.enabled);
+		}
 	}
 
 	void Update ()
@@ -28,7 +32,9 @@ public class PlayerMotor : MonoBehaviour {
 	
 	public void MoveToPoint (Vector3 point)
 	{
+		Debug.Log("Moving to point: " + point);
 		agent.SetDestination(point);
+		Debug.Log("Agent has path: " + agent.hasPath + ", path status: " + agent.pathStatus);
 	}
 
 	
