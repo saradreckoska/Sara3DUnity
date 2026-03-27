@@ -36,7 +36,7 @@ public class InventoryUI : MonoBehaviour
                 rt.anchorMin = new Vector2(1, 1);
                 rt.anchorMax = new Vector2(1, 1);
                 rt.anchoredPosition = new Vector2(-10, -10);
-                rt.pivot = new Vector2(1, 1); t
+                rt.pivot = new Vector2(1, 1);
             }
         }
 
